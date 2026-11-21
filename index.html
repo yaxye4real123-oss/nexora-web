@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+  <meta charset="UTF-8">
+  <title>Nexora Notifications</title>
+</head>
+<body>
+  <h2>Nexora</h2>
+  <button id="enable">Oggolow ogeysiisyada</button>
+  <p id="status"></p>
+  <textarea id="token" rows="5" cols="60" readonly></textarea>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgDwtgtDk0HpL5sbglOgDDn8iG1ud6RxU",
+      authDomain: "nexora-dc728.firebaseapp.com",
+      projectId: "nexora-dc728",
+      storageBucket: "nexora-dc728.firebasestorage.app",
+      messagingSenderId: "148224232398",
+      appId: "1:148224232398:web:753ed535094fa850a4b99f"
+    };
+    const VAPID_KEY = "BDiV4bGZMVEUhKlKktCan83no7jt08clg8zjuWxOmdeXNHShza0ajvFeIbxsRzbj8ZJdO5pRk_fmboNiaYUqBOs";
+
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    messaging.onMessage((payload) => {
+      alert(payload.notification.title + "\n" + payload.notification.body);
+    });
+
+    document.getElementById("enable").addEventListener("click", async () => {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          document.getElementById("status").textContent = "Ogeysiisyada waa la diiday.";
+          return;
+        }
+
+        const registration = await navigator.serviceWorker.register("./firebase-messaging-sw.js");
+        const token = await messaging.getToken({
+          vapidKey: VAPID_KEY,
+          serviceWorkerRegistration: registration
+        });
+
+        document.getElementById("token").value = token;
+        document.getElementById("status").textContent = "Token-ka waa la helay. Koobiyee.";
+      } catch (err) {
+        document.getElementById("status").textContent = "Khalad: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
